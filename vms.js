@@ -15,11 +15,14 @@ const client = new MongoClient(uri, {
 });
 
 client.connect().then(res=>{
-  console.log(res)
+    if (res){
+        console.log("Welcome to visitor managment system")
+    }
+  
 })
 
-function register(regUsername,regPassword,regEmail,regRole){
-    client.db("user").collection("visitor").insertOne({
+async function registerVisitor(regUsername,regPassword,regEmail,regRole){  //register visitor
+    await client.db("user").collection("visitor").insertOne({
         username:regUsername,
         password:regPassword,
         email:regEmail,
@@ -27,13 +30,77 @@ function register(regUsername,regPassword,regEmail,regRole){
     })
 }
 
+async function registerHost(regUsername,regPassword,regEmail,regRole){  //register host
+    await client.db("user").collection("host").insertOne({
+        username:regUsername,
+        password:regPassword,
+        email:regEmail,
+        role:regRole
+    })
+}
+
+async function loginVisitor(Username,Password){  //visitor login
+    const option={projection:{_id:0,username:1,email:1}}
+
+    const result = await client.db("user").collection("visitor").findOne({
+       $and:[
+            {username:{$eq:Username}},
+            {password:{$eq:Password}}
+            ]
+    },option)
+
+    if(result){
+        console.log(result)
+        console.log("Successfully Login")
+    }
+    else {
+        console.log("User not found or password error")
+    }
+    
+}
+
+async function loginHost(Username,Password){  //host login
+    const option={projection:{_id:0,username:1,email:1}}
+
+    const result = await client.db("user").collection("host").findOne({
+       $and:[
+            {username:{$eq:Username}},
+            {password:{$eq:Password}}
+    ]
+    },option)
+
+    if(result){
+        console.log(result)
+        console.log("Successfully Login")
+    }
+    else {
+        console.log("User not found or password error")
+    }
+    
+}
+
+
+
 app.use(express.json())
 
 app.listen(port, () => {
-    console.log(`Successfully connect to port ${port}`)
+    //console.log(`Successfully connect to port ${port}`)
   })
 
-app.post("/register" , (req, res) => {
-    res.send(register(req.body.username,req.body.password,req.body.email,req.body.role)) 
-    console.log(req.body.username,"successfully register")
+app.post("/register/visitor" , (req, res) => {
+    res.send(registerVisitor(req.body.username,req.body.password,req.body.email,req.body.role)) 
+    console.log(req.body.username,"is successfully register")
 })
+
+app.post("/register/host" , (req, res) => {
+    res.send(registerHost(req.body.username,req.body.password,req.body.email,req.body.role)) 
+    console.log(req.body.username,"is successfully register")
+})
+
+app.post('/login/visitor', (req, res) => { 
+    res.send(loginVisitor(req.body.username,req.body.password))
+  })
+
+app.post('/login/host', (req, res) => { 
+    res.send(loginHost(req.body.username,req.body.password))
+  })
