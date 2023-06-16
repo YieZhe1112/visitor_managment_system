@@ -40,7 +40,7 @@ async function registerHost(regUsername,regPassword,regEmail,regRole){  //regist
 }
 
 async function loginVisitor(Username,Password){  //visitor login
-    const option={projection:{_id:0,username:1,email:1}}
+    const option={projection:{_id:0,username:1,email:1}}  //pipeline to project usernamne and email
 
     const result = await client.db("user").collection("visitor").findOne({
        $and:[
@@ -60,7 +60,7 @@ async function loginVisitor(Username,Password){  //visitor login
 }
 
 async function loginHost(Username,Password){  //host login
-    const option={projection:{_id:0,username:1,email:1}}
+    const option={projection:{_id:0,username:1,email:1}}  //pipeline to project usernamne and email
 
     const result = await client.db("user").collection("host").findOne({
        $and:[
