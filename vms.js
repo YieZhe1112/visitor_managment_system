@@ -21,6 +21,10 @@ client.connect().then(res=>{
   
 })
 
+
+
+
+
 async function registerVisitor(regUsername,regPassword,regEmail,regRole){  //register visitor
     await client.db("user").collection("visitor").insertOne({
         username:regUsername,
@@ -39,45 +43,47 @@ async function registerHost(regUsername,regPassword,regEmail,regRole){  //regist
     })
 }
 
-async function loginVisitor(Username,Password){  //visitor login
-    const option={projection:{_id:0,username:1,email:1}}  //pipeline to project usernamne and email
+async function login(Username,Password,Role){  //login
+    if (Role == "visitor"){
+        const option={projection:{_id:0,username:1,email:1}}  //pipeline to project usernamne and email
 
-    const result = await client.db("user").collection("visitor").findOne({
-       $and:[
-            {username:{$eq:Username}},
-            {password:{$eq:Password}}
-            ]
-    },option)
+        const result = await client.db("user").collection("visitor").findOne({
+            $and:[
+                {username:{$eq:Username}},
+                {password:{$eq:Password}}
+                ]
+        },option)
 
-    if(result){
-        console.log(result)
-        console.log("Successfully Login")
-    }
-    else {
-        console.log("User not found or password error")
-    }
-    
-}
-
-async function loginHost(Username,Password){  //host login
-    const option={projection:{_id:0,username:1,email:1}}  //pipeline to project usernamne and email
-
-    const result = await client.db("user").collection("host").findOne({
-       $and:[
-            {username:{$eq:Username}},
-            {password:{$eq:Password}}
-    ]
-    },option)
-
-    if(result){
-        console.log(result)
-        console.log("Successfully Login")
-    }
-    else {
-        console.log("User not found or password error")
+        if(result){
+            console.log(result)
+            console.log("Successfully Login")
+        }
+        else {
+            console.log("User not found or password error")
+        }
     }
     
+    else if (Role == "host"){
+        const option={projection:{_id:0,username:1,email:1}}  //pipeline to project usernamne and email
+
+        const result = await client.db("user").collection("host").findOne({
+            $and:[
+                {username:{$eq:Username}},
+                {password:{$eq:Password}}
+                ]
+        },option)
+
+        if(result){
+            console.log(result)
+            console.log("Successfully Login")
+        }
+        else {
+            console.log("User not found or password error")
+        }
+    }
 }
+
+
 
 
 
@@ -97,10 +103,6 @@ app.post("/register/host" , (req, res) => {
     console.log(req.body.username,"is successfully register")
 })
 
-app.post('/login/visitor', (req, res) => { 
-    res.send(loginVisitor(req.body.username,req.body.password))
-  })
-
-app.post('/login/host', (req, res) => { 
-    res.send(loginHost(req.body.username,req.body.password))
+app.post('/login', (req, res) => { 
+    res.send(login(req.body.username,req.body.password,req.body.role))
   })
