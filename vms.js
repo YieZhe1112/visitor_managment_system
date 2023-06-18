@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://s2s3a:abc1234@record.55pqast.mongodb.net/?retryWrites=true&w=majority";
 
+var l = "false"
+
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -94,7 +96,7 @@ async function login(Username,Password){  //user and host login
     },
     {
         $currentDate: {
-        "check-in time": true
+        "last check-in time": true
      },
     })
 
@@ -173,7 +175,7 @@ function details(role){  //show details of visitor and host
         })
 
         app.post('/login/host/search', (req, res) => {   //look up visitor details
-            res.send(searchVisitor(req.body.username))
+            res.send(searchVisitor(req.body._id))
         })
 
         app.post('/login/host/delete', (req, res) => {   //delete
@@ -186,6 +188,11 @@ function details(role){  //show details of visitor and host
 
         app.post('/login/host/removeVisitor', (req, res) => {   //remove visitor
             res.send(removeVisitor(req.body.visitorName))
+        })
+
+        app.get('/login/host/logout', (req, res) => {   //remove visitor
+            console.log("You have successfully log out")
+            l = "false"
         })
     }
 }
@@ -206,11 +213,11 @@ async function removeVisitor(removeVisitor){
     console.log("Visitor",removeVisitor,"is successfully remove")
 }
 
-async function searchVisitor(Username){
-    const option={projection:{_id:0,username:1,email:1,role:1}}  //pipeline to project usernamne and email
+async function searchVisitor(IC){
+    const option={projection:{password:0,role:0}}  //pipeline to project usernamne and email
 
-    const result = await client.db("user").collection("visitor").findOne({  
-            username:{$eq:Username}
+    const result = await client.db("user").collection("visitor").findOne({
+        _id:{$eq:IC}
     },option)
     console.log(result)
 }
@@ -236,5 +243,12 @@ app.post("/register/host" , (req, res) => {  //register host
 })
 
 app.post('/login', (req, res) => {   //login
-    res.send(login(req.body.username,req.body.password))
+    if(l == "false"){
+        res.send(login(req.body.username,req.body.password))
+        l = "ture"
+    }
+    else{
+        console.log("You had already login")
+    }
 })
+
