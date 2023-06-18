@@ -27,22 +27,55 @@ client.connect().then(res=>{
 
 
 
-async function registerVisitor(regUsername,regPassword,regEmail,regRole){  //register visitor
-    await client.db("user").collection("visitor").insertOne({
-        username:regUsername,
-        password:regPassword,
-        email:regEmail,
-        role:regRole
+async function registerVisitor(regIC,regUsername,regPassword,regEmail,regRole){  //register visitor
+   
+    let result = await client.db("user").collection("visitor").findOne({
+        username:regUsername
     })
+   
+    if(result._id == regIC){
+        console.log("Your IC already exist. Please try to login")
+    }
+
+    else if(result.email == regEmail){
+        console.log("Your email already exist. Please try to login")
+    }
+
+    else{
+        await client.db("user").collection("visitor").insertOne({
+            _id:regIC,
+            username:regUsername,
+            password:regPassword,
+            email:regEmail,
+            role:regRole
+        })
+        console.log(regUsername,"is successfully register")
+    }
 }
 
-async function registerHost(regUsername,regPassword,regEmail,regRole){  //register host
-    await client.db("user").collection("host").insertOne({
-        username:regUsername,
-        password:regPassword,
-        email:regEmail,
-        role:regRole
+async function registerHost(regIC,regUsername,regPassword,regEmail,regRole){  //register host
+    let result = await client.db("user").collection("visitor").findOne({
+        username:regUsername
     })
+   
+    if(result._id == regIC){
+        console.log("Your IC already exist. Please try to login")
+    }
+
+    else if(result.email == regEmail){
+        console.log("Your email already exist. Please try to login")
+    }
+
+    else{
+        await client.db("user").collection("host").insertOne({
+            _id:regIC,
+            username:regUsername,
+            password:regPassword,
+            email:regEmail,
+            role:regRole
+        })
+        console.log(regUsername,"is successfully register")
+    }
 }
 
 async function login(Username,Password){  //user and host login
@@ -63,7 +96,7 @@ async function login(Username,Password){  //user and host login
         $currentDate: {
         "check-in time": true
      },
-    },{upsert:true})
+    })
 
     if(result){
         console.log(result)
@@ -139,9 +172,9 @@ function details(role){  //show details of visitor and host
             res.send(login(req.body.username,req.body.password))
         })
 
-        // app.post('/login/host/visitorDetails', (req, res) => {   //look up visitor details
-        //     res.send(visitorDetails(req.body.visitor))
-        // })
+        app.post('/login/host/search', (req, res) => {   //look up visitor details
+            res.send(searchVisitor(req.body.username))
+        })
 
         app.post('/login/host/delete', (req, res) => {   //delete
             res.send(deleteHostAcc(req.body.username,req.body.password))
@@ -168,9 +201,18 @@ async function addVisitor(visitorName,phoneNumber,companyName){
 async function removeVisitor(removeVisitor){
 
     const result = await client.db("user").collection("host").updateOne({
-       // username: "HO"
+     
     },{$pull:{visitor:{name:removeVisitor}}},{upsert:true})
     console.log("Visitor",removeVisitor,"is successfully remove")
+}
+
+async function searchVisitor(Username){
+    const option={projection:{_id:0,username:1,email:1,role:1}}  //pipeline to project usernamne and email
+
+    const result = await client.db("user").collection("visitor").findOne({  
+            username:{$eq:Username}
+    },option)
+    console.log(result)
 }
 
 
@@ -184,14 +226,13 @@ app.listen(port, () => {
   })
 
 app.post("/register/visitor" , (req, res) => {  //register visitor
-    res.send(registerVisitor(req.body.username,req.body.password,req.body.email,req.body.role))
-    console.log(req.body.username,"is successfully register")
+    res.send(registerVisitor(req.body._id,req.body.username,req.body.password,req.body.email,req.body.role))
+    // console.log(req.body.username,"is successfully register")
 })
 
 app.post("/register/host" , (req, res) => {  //register host
-    res.send(registerHost                   
-    (req.body.username,req.body.password,req.body.email,req.body.role))
-    console.log(req.body.username,"is successfully register")
+    res.send(registerHost(req.body._id,req.body.username,req.body.password,req.body.email,req.body.role))
+    // console.log(req.body.username,"is successfully register")
 })
 
 app.post('/login', (req, res) => {   //login
