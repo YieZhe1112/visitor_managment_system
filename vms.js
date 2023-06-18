@@ -6,7 +6,8 @@ const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://s2s3a:abc1234@record.55pqast.mongodb.net/?retryWrites=true&w=majority";
 
-var l = "false"
+var l = "true"
+var host
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -20,6 +21,7 @@ const client = new MongoClient(uri, {
 client.connect().then(res=>{
     if (res){
         console.log("Welcome to visitor managment system")
+        l = "false"
     }
   
 })
@@ -116,6 +118,7 @@ async function login(Username,Password){  //user and host login
         },option)
 
         if(result){
+            host = result.username
             console.log(result)
             console.log("Successfully Login")
             details(result.role)
@@ -166,6 +169,11 @@ function details(role){  //show details of visitor and host
         app.post('/login/visitor/delete', (req, res) => {   //delete
             res.send(deleteVisitorAcc(req.body.username,req.body.password))
         })
+
+        app.get('/login/visitor/logout', (req, res) => {   //remove visitor
+            console.log("You have successfully log out")
+            l = "false"
+        })
     }
 
     else if (role == "host"){
@@ -183,7 +191,7 @@ function details(role){  //show details of visitor and host
         })
 
         app.post('/login/host/addVisitor', (req, res) => {   //add visitor
-            res.send(addVisitor(req.body.visitorName,req.body.phoneNumber,req.body.companyName))
+            res.send(addVisitor(req.body.visitorName,req.body.phoneNumber,req.body.companyName,req.body.date))
         })
 
         app.post('/login/host/removeVisitor', (req, res) => {   //remove visitor
@@ -197,19 +205,31 @@ function details(role){  //show details of visitor and host
     }
 }
 
-async function addVisitor(visitorName,phoneNumber,companyName){
+async function addVisitor(visitorName,phoneNumber,companyName,date){
 
-    const result = await client.db("user").collection("host").updateOne({
+    await client.db("user").collection("host").updateOne({
 
-    },{$push:{visitor:{name:visitorName,phone:phoneNumber,company:companyName}}},{upsert:true})
+    },{$push:{visitor:{name:visitorName,phone:phoneNumber,company:companyName,date:date}}},{upsert:true})
+
+
+    await client.db("user").collection("visitor").updateOne({
+        username:{$eq:visitorName}
+    },{$push:{host:{name:host,date:date}}},{upsert:true})
+
     console.log("Visitor",visitorName,"is successfully added")
 }
 
 async function removeVisitor(removeVisitor){
 
-    const result = await client.db("user").collection("host").updateOne({
+    await client.db("user").collection("host").updateOne({
      
     },{$pull:{visitor:{name:removeVisitor}}},{upsert:true})
+
+
+    await client.db("user").collection("visitor").updateOne({
+     
+    },{$pull:{host:{name:host}}},{upsert:true})
+
     console.log("Visitor",removeVisitor,"is successfully remove")
 }
 
@@ -248,7 +268,7 @@ app.post('/login', (req, res) => {   //login
         l = "ture"
     }
     else{
-        console.log("You had already login")
+        console.log("")
     }
 })
 
