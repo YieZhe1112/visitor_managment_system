@@ -13,17 +13,54 @@ POST http://localhost:3000/register/host
 Content-Type: application/json
 
 {
-    "username" : "KHOO",
+    "username" : "HO",
     "password" : 111111,
-    "email"    : "khoo@student.utem.edu.my",
+    "email"    : "ho@student.utem.edu.my",
+    "visitor"  : "",
     "role"     : "host"
 }
 
 ###
-GET http://localhost:3000/login
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "username" : "HO",
+    "password" : 111111
+}
+
+###
+POST http://localhost:3000/login/visitor/delete
+Content-Type: application/json
+
+{
+    "username" : "HO",
+    "password" : 111111
+}
+
+###
+POST http://localhost:3000/login/host/delete
 Content-Type: application/json
 
 {
     "username" : "KHOO",
     "password" : 111111
+}
+
+###
+POST http://localhost:3000/login/host/addVisitor
+Content-Type: application/json
+
+{
+    "visitorName" : "TAN",
+    "phoneNumber" : "012-3456789",
+    "companyName" : "qqqqq"
+}
+
+###
+POST http://localhost:3000/login/host/removeVisitor
+Content-Type: application/json
+
+{
+    "visitorName" : "TAN"
 }

@@ -45,16 +45,25 @@ async function registerHost(regUsername,regPassword,regEmail,regRole){  //regist
     })
 }
 
-async function login(Username,Password){  //login
+async function login(Username,Password){  //user and host login
 
     const option={projection:{_id:0,username:1,email:1,role:1}}  //pipeline to project usernamne and email
 
-    const result = await client.db("user").collection("visitor").findOne({
+    const result = await client.db("user").collection("visitor").findOne({  
         $and:[
             {username:{$eq:Username}},
             {password:{$eq:Password}}
             ]
     },option)
+
+    await client.db("user").collection("visitor").updateOne({  
+        username:Username
+    },
+    {
+        $currentDate: {
+        "check-in time": true
+     },
+    },{upsert:true})
 
     if(result){
         console.log(result)
@@ -82,8 +91,9 @@ async function login(Username,Password){  //login
     }
 }
 
-async function deleteAcc(Username,Password){  //delete acc
+async function deleteVisitorAcc(Username,Password){  //delete visitor acc
     const result = await client.db("user").collection("visitor").deleteOne({
+        
         $and:[
             {username:{$eq:Username}},
             {password:{$eq:Password}}
@@ -92,52 +102,75 @@ async function deleteAcc(Username,Password){  //delete acc
 
     if(result){
         console.log(result)
-        console.log("Successfully deleted")
+        console.log("Your account was successfully deleted")
     }
+}
 
-    else{
-        const result = await client.db("user").collection("host").deleteOne({
-            $and:[
-                {username:{$eq:Username}},
-                {password:{$eq:Password}}
-                ]
-        })
+async function deleteHostAcc(Username,Password){  //delete host acc
+    const result = await client.db("user").collection("host").deleteOne({
+        
+        $and:[
+            {username:{$eq:Username}},
+            {password:{$eq:Password}}
+            ]
+    })
 
-        if(result){
-            console.log(result)
-            console.log("Successfully deleted")
-        }
+    if(result){
+        console.log(result)
+        console.log("Your account was successfully deleted")
     }
 }
 
 function details(role){  //show details of visitor and host
     if (role == "visitor"){
-        console.log("v")
+        
         app.post('/login/visitor', (req, res) => {   //login
             res.send(login(req.body.username,req.body.password))
+        })
+
+        app.post('/login/visitor/delete', (req, res) => {   //delete
+            res.send(deleteVisitorAcc(req.body.username,req.body.password))
         })
     }
 
     else if (role == "host"){
-        console.log("h")
+        
         app.post('/login/host', (req, res) => {   //login
             res.send(login(req.body.username,req.body.password))
         })
 
-        app.post('/login/host/add', (req, res) => {   //login
-            res.send(addVisitor(req.body.visitor))
+        // app.post('/login/host/visitorDetails', (req, res) => {   //look up visitor details
+        //     res.send(visitorDetails(req.body.visitor))
+        // })
+
+        app.post('/login/host/delete', (req, res) => {   //delete
+            res.send(deleteHostAcc(req.body.username,req.body.password))
+        })
+
+        app.post('/login/host/addVisitor', (req, res) => {   //add visitor
+            res.send(addVisitor(req.body.visitorName,req.body.phoneNumber,req.body.companyName))
+        })
+
+        app.post('/login/host/removeVisitor', (req, res) => {   //remove visitor
+            res.send(removeVisitor(req.body.visitorName))
         })
     }
 }
 
-async function addVisitor(addVisitor){
-    // const option = {projection:{_id:0,username:1,email:1,visitor:1},
-    //                 lookup:{from: "visitor",localField: "visitor",foreignField: "username",as: "visitorDetail",
-    // }}
-    
+async function addVisitor(visitorName,phoneNumber,companyName){
+
     const result = await client.db("user").collection("host").updateOne({
 
-    },{$set:{visitor:addVisitor}},{upsert:true})
+    },{$push:{visitor:{name:visitorName,phone:phoneNumber,company:companyName}}},{upsert:true})
+    console.log("Visitor",visitorName,"is successfully added")
+}
+
+async function removeVisitor(removeVisitor){
+
+    const result = await client.db("user").collection("host").updateOne({
+       // username: "HO"
+    },{$pull:{visitor:{name:removeVisitor}}},{upsert:true})
+    console.log("Visitor",removeVisitor,"is successfully remove")
 }
 
 
@@ -156,14 +189,11 @@ app.post("/register/visitor" , (req, res) => {  //register visitor
 })
 
 app.post("/register/host" , (req, res) => {  //register host
-    res.send(registerHost(req.body.username,req.body.password,req.body.email,req.body.role))
+    res.send(registerHost                   
+    (req.body.username,req.body.password,req.body.email,req.body.role))
     console.log(req.body.username,"is successfully register")
 })
 
 app.post('/login', (req, res) => {   //login
     res.send(login(req.body.username,req.body.password))
-})
-
-app.post('/delete', (req, res) => {   //delete
-    res.send(deleteAcc(req.body.username,req.body.password))
 })
