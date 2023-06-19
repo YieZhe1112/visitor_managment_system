@@ -141,6 +141,7 @@ async function login(Username,Password){  //user and host login
             },option)
 
             if(result){
+                security = result.username
                 console.log(result)
                 console.log("Successfully Login")
                 details(result.role)
@@ -229,6 +230,10 @@ function details(role){  //show details of visitor and host
     }
     else if (role == "security"){
         
+        app.post("/login/security/updatePassword" , (req, res) => {  //delete host
+            res.send(updateSecurityPass(req.body.password))
+        })
+
         app.post("/login/security/deleteHost" , (req, res) => {  //delete host
             res.send(deleteHostAcc(req.body.username))
         })
@@ -250,6 +255,15 @@ function details(role){  //show details of visitor and host
             l = "false"
         })
     }
+}
+
+async function updateSecurityPass(regPassword){
+
+    await client.db("user").collection("security").updateOne({
+        username:{$eq:security}
+    },{$set:{password:regPassword}})
+
+    console.log("Password",security,"is successfully updated")
 }
 
 async function updateVisitorPass(regPassword){
