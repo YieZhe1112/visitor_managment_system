@@ -158,9 +158,13 @@ async function deleteVisitorAcc(Username){  //delete visitor acc
         username:{$eq:Username}
     })
 
+    await client.db("user").collection("host").updateMany({
+     
+    },{$pull:{visitor:{name:Username}}},{upsert:true})
+
     if(result){
         console.log(result)
-        console.log("Your account was successfully deleted")
+        console.log("The account was successfully deleted")
     }
 }
 
@@ -169,9 +173,13 @@ async function deleteHostAcc(Username){  //delete host acc
         username:{$eq:Username}
     })
 
+    await client.db("user").collection("visitor").updateMany({
+        
+    },{$pull:{host:{name:Username}}},{upsert:true})
+
     if(result){
         console.log(result)
-        console.log("Your account was successfully deleted")
+        console.log("The account was successfully deleted")
     }
 }
 
