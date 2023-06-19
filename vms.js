@@ -250,7 +250,7 @@ async function updateVisitorPass(regPassword){
         username:{$eq:visitor}
     },{$set:{password:regPassword}})
 
-    console.log("Visitor",visitor,"is successfully updated")
+    console.log("Password",visitor,"is successfully updated")
 }
 
 async function updateHostPass(regPassword){
@@ -259,7 +259,7 @@ async function updateHostPass(regPassword){
         username:{$eq:host}
     },{$set:{password:regPassword}})
 
-    console.log("Visitor",visitor,"is successfully updated")
+    console.log("Password",host,"is successfully updated")
 }
 
 async function addVisitor(visitorName,phoneNumber,companyName,date,time){
@@ -332,7 +332,7 @@ app.post('/login', (req, res) => {   //login
         res.send(login(req.body.username,req.body.password))
     }
     else{
-        console.log(" ")
+        console.log("...")
     }
 })
 
