@@ -1,7 +1,6 @@
 const express = require('express')
 const app = express()
 const port = 3000
-const jwt = require('jsonwebtoken')
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://s2s3a:abc1234@record.55pqast.mongodb.net/?retryWrites=true&w=majority";

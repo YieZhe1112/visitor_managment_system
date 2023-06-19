@@ -64,7 +64,8 @@ Content-Type: application/json
 {
     "visitorName" : "GOH",
     "phoneNumber" : "012-3456789",
-    "companyName" : "qqqqq"
+    "companyName" : "qqqqq",
+    "date"        : "2023-06-30"
 }
 
 ###
@@ -74,3 +75,10 @@ Content-Type: application/json
 {
     "visitorName" : "GOH"
 }
+
+###
+GET http://localhost:3000/login/host/logout
+
+###
+GET http://localhost:3000/login/visitor/logout
+
