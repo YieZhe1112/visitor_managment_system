@@ -1,4 +1,22 @@
-POST http://localhost:3000/register/visitor
+###
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "username" : "KHOO",
+    "password" : 111111
+}
+
+###
+POST http://localhost:3000/login/visitor/updatePassword
+Content-Type: application/json
+
+{
+    "password" : 123456
+}
+
+###
+POST http://localhost:3000/login/security/register/visitor
 Content-Type: application/json
 
 {
@@ -6,47 +24,44 @@ Content-Type: application/json
     "password" : 111111,
     "_id"      : "000101-02-1111",
     "email"    : "goh@student.utem.edu.my",
-    "role"     : "visitor"
+    "role"     : "visitor",
+    "lastCheckinTime" :"not cehck in yet"
 }
 
 ###
-POST http://localhost:3000/register/host
+POST http://localhost:3000/login/security/register/host
 Content-Type: application/json
 
 {
     "username" : "HO",
     "password" : 111111,
-    "_id"      : "123456789",
+    "_id"      : "000201-00-9919",
     "email"    : "ho@student.utem.edu.my",
-    //"visitor"  : "",
     "role"     : "host"
 }
 
 ###
-POST http://localhost:3000/login
+POST http://localhost:3000/login/security/deleteHost
 Content-Type: application/json
 
 {
-    "username" : "HO",
-    "password" : 111111
+    "username" : "HO"
 }
 
 ###
-POST http://localhost:3000/login/visitor/delete
+POST http://localhost:3000/login/security/deleteVisitor
 Content-Type: application/json
 
 {
-    "username" : "HO",
-    "password" : 111111
+    "username" : "GOH"
 }
 
 ###
-POST http://localhost:3000/login/host/delete
+POST http://localhost:3000/login/host/updatePassword
 Content-Type: application/json
 
 {
-    "username" : "KHOO",
-    "password" : 111111
+    "password" : 123456
 }
 
 ###
@@ -62,10 +77,11 @@ POST http://localhost:3000/login/host/addVisitor
 Content-Type: application/json
 
 {
-    "visitorName" : "GOH",
+    "visitorName" : "TAN",
     "phoneNumber" : "012-3456789",
     "companyName" : "qqqqq",
-    "date"        : "2023-06-30"
+    "date"        : "2023-06-30",
+    "time"        : "8.00 pm"
 }
 
 ###
@@ -73,7 +89,9 @@ POST http://localhost:3000/login/host/removeVisitor
 Content-Type: application/json
 
 {
-    "visitorName" : "GOH"
+    "visitorName" : "GOH",
+    "date"        : "2023-06-30",
+    "time"        : "8.00 pm"
 }
 
 ###
@@ -81,4 +99,7 @@ GET http://localhost:3000/login/host/logout
 
 ###
 GET http://localhost:3000/login/visitor/logout
+
+###
+GET http://localhost:3000/login/security/logout
 
