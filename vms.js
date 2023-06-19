@@ -108,10 +108,10 @@ async function login(Username,Password){  //user and host login
 
     if(result){
         visitor = result.username
-        console.log(visitor)
         console.log(result)
         console.log("Successfully Login")
         details(result.role)
+        l = "true"
     }
     else {
         const option={projection:{password:0}}  //pipeline to project usernamne and email
@@ -128,6 +128,7 @@ async function login(Username,Password){  //user and host login
             console.log(result)
             console.log("Successfully Login")
             details(result.role)
+            l = "true"
         }
         else {
             const option={projection:{password:0}}  //pipeline to project usernamne and email
@@ -143,6 +144,7 @@ async function login(Username,Password){  //user and host login
                 console.log(result)
                 console.log("Successfully Login")
                 details(result.role)
+                l = "true"
             }
             else{
                 console.log("User not found or password error")
@@ -328,7 +330,6 @@ app.listen(port, () => {
 app.post('/login', (req, res) => {   //login
     if(l == "false"){
         res.send(login(req.body.username,req.body.password))
-        l = "ture"
     }
     else{
         console.log(" ")
