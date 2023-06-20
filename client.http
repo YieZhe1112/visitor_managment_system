@@ -21,7 +21,7 @@ POST http://localhost:3000/login
 Content-Type: application/json
 
 {
-    "username" : "HOCK",
+    "username" : "HO",
     "password" : 111111
 }
 
@@ -51,7 +51,6 @@ POST http://localhost:3000/login/security/register/host
 Content-Type: application/json
 
 {
-    "username" : "HO",
     "password" : 111111,
     "_id"      : "000201-00-9919",
     "email"    : "ho@student.utem.edu.my",
@@ -95,9 +94,10 @@ POST http://localhost:3000/login/host/addVisitor
 Content-Type: application/json
 
 {
-    "visitorName" : "TAN",
-    "phoneNumber" : "012-3456789",
-    "companyName" : "qqqqq",
+    "Ic"          : "010666-28-5555",
+    "visitorName" : "Ho-cbbb",
+    "phoneNumber" : "011-6625265",
+    "companyName" : "Amway",
     "date"        : "2023-06-30",
     "time"        : "8.00 pm"
 }
@@ -107,7 +107,7 @@ POST http://localhost:3000/login/host/removeVisitor
 Content-Type: application/json
 
 {
-    "visitorName" : "GOH",
+    "visitorName" : "TAN",
     "date"        : "2023-06-30",
     "time"        : "8.00 pm"
 }

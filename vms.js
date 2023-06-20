@@ -220,7 +220,7 @@ async function updateHostPass(regPassword){
 }
 
 async function addVisitor(visitorIC,visitorName,phoneNumber,companyName,date,time){
-
+    //to check whether there is same visitor in array
     let result = await client.db("user").collection("host").findOne({username: host, "visitor.name": visitorName, "visitor.phone": phoneNumber})
     
     if (!result){
@@ -233,8 +233,8 @@ async function addVisitor(visitorIC,visitorName,phoneNumber,companyName,date,tim
         })
 
         if (!result){
-            await client.db("user").collection("visitor").insertOne({
-                "_id":visitorIC,
+            await client.db("user").collection("visitor").insertOne({   //add visitor if there he/is is not in db
+                "_id":visitorIC,                                        //_id must be unique !!!! I will do tmr (21/6/2023)
                 "username":visitorName,
                 "password":111111,
                 "email":"xxxx",
