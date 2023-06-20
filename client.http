@@ -4,6 +4,24 @@ Content-Type: application/json
 
 {
     "username" : "KHOO",
+    "password" : 123456
+}
+
+###
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "username" : "GH",
+    "password" : 12344
+}
+
+###
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "username" : "HOCK",
     "password" : 111111
 }
 
@@ -12,7 +30,7 @@ POST http://localhost:3000/login/visitor/updatePassword
 Content-Type: application/json
 
 {
-    "password" : 123456
+    "password" : 12345
 }
 
 ###
