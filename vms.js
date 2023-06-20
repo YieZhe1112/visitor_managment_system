@@ -5,7 +5,8 @@ const port = 3000
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://s2s3a:abc1234@record.55pqast.mongodb.net/?retryWrites=true&w=majority";
 
-global.l = "true"
+//global variables
+global.l = "true"   
 var host
 var role
 
@@ -23,9 +24,7 @@ client.connect().then(res=>{
         console.log("Welcome to visitor managment system")
         l = "false"
     }
-  
 })
-
 
 async function registerVisitor(regIC,regUsername,regPassword,regEmail,regRole,regLast){  //register visitor
    
@@ -191,7 +190,6 @@ async function deleteHostAcc(Username){  //delete host acc
     }
 }
 
-
 async function updateVisitorPass(regPassword){  //change only when password is different
     result = await client.db("user").collection("visitor").findOne ({username:{$eq:visitor}})
 
@@ -221,43 +219,49 @@ async function updateHostPass(regPassword){
         console.log ("Same password cannot be applied")
 }
 
-async function addVisitor(visitorName,phoneNumber,companyName,date,time){
+async function addVisitor(visitorIC,visitorName,phoneNumber,companyName,date,time){
 
-    await client.db("user").collection("host").updateOne({
-
-    },{$push:{visitor:{name:visitorName,phone:phoneNumber,company:companyName,date:date,time:time}}},{upsert:true})
-
-    let result = await client.db("user").collection("visitor").findOne({
-        username:{$eq:visitorName}
-    })
-
+    let result = await client.db("user").collection("host").findOne({username: host, "visitor.name": visitorName, "visitor.phone": phoneNumber})
+    
     if (!result){
-        await client.db("user").collection("visitor").insertOne({
-            "_id":"000000-00-0000",
-            "username":visitorName,
-            "password":111111,
-            "email":"xxxx",
-            "role":"visitor",
-            "lastCheckinTime" :"not check in yet"
+        await client.db("user").collection("host").updateOne({
+            username: host
+        },{$push:{visitor:{name:visitorName,phone:phoneNumber,company:companyName,date:date,time:time}}},{upsert:true})
+
+         let result = await client.db("user").collection("visitor").findOne({
+            username:{$eq:visitorName}
         })
 
-        await client.db("user").collection("visitor").updateOne({
-            username:{$eq:visitorName}
-        },{$push:{host:{name:host,date:date,time:time}}})
-    }
-    else{
-        await client.db("user").collection("visitor").updateOne({
-            username:{$eq:visitorName}
-        },{$push:{host:{name:host,date:date,time:time}}})
-    }
+        if (!result){
+            await client.db("user").collection("visitor").insertOne({
+                "_id":visitorIC,
+                "username":visitorName,
+                "password":111111,
+                "email":"xxxx",
+                "role":"visitor",
+                "lastCheckinTime" :"not check in yet"
+            })
 
-    console.log("Visitor",visitorName,"is successfully added")
+            await client.db("user").collection("visitor").updateOne({
+                username:{$eq:visitorName}
+            },{$push:{host:{name:host,date:date,time:time}}})
+        }
+        else{
+            await client.db("user").collection("visitor").updateOne({
+                username:{$eq:visitorName}
+            },{$push:{host:{name:host,date:date,time:time}}})
+        }
+
+        console.log("Visitor",visitorName,"is successfully added")
+    }
+    else
+        console.log ("The visitor has already been added")
 }
 
 async function removeVisitor(removeVisitor,removeDate,removeTime){
 
     await client.db("user").collection("host").updateOne({
-
+        username: host
     },{$pull:{visitor:{name:removeVisitor},visitor:{date:removeDate},visitor:{time:removeTime}}},{upsert:true})
 
 
@@ -277,10 +281,7 @@ async function searchVisitor(IC){
     console.log(result)
 }
 
-
-
 //HTTP login method
-
 app.use(express.json())
 
 app.listen(port, () => {
@@ -342,7 +343,7 @@ app.post('/login/host/search', (req, res) => {   //look up visitor details
 
 app.post('/login/host/addVisitor', (req, res) => {   //add visitor
     if ((role == "host") && (l == "true"))
-        res.send(addVisitor(req.body.visitorName,req.body.phoneNumber,req.body.companyName,req.body.date,req.body.time))
+        res.send(addVisitor(req.body.Ic,req.body.visitorName,req.body.phoneNumber,req.body.companyName,req.body.date,req.body.time))
     else
         console.log ("You are not a host")
 })
