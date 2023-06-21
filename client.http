@@ -94,8 +94,8 @@ POST http://localhost:3000/login/host/addVisitor
 Content-Type: application/json
 
 {
-    "Ic"          : "010666-28-5555",
-    "visitorName" : "Ho-cbbb",
+    "Ic"          : "000000-00-0000",
+    "visitorName" : "TAN",
     "phoneNumber" : "011-6625265",
     "companyName" : "Amway",
     "date"        : "2023-06-30",

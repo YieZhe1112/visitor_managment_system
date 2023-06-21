@@ -221,41 +221,27 @@ async function updateHostPass(regPassword){
 
 async function addVisitor(visitorIC,visitorName,phoneNumber,companyName,date,time){
     //to check whether there is same visitor in array
-    let result = await client.db("user").collection("host").findOne({username: host, "visitor.name": visitorName, "visitor.phone": phoneNumber})
+    let result = await client.db("user").collection("visitor").findOne({_id: visitorIC, username: visitorName})
     
-    if (!result){
-        await client.db("user").collection("host").updateOne({
-            username: host
-        },{$push:{visitor:{name:visitorName,phone:phoneNumber,company:companyName,date:date,time:time}}},{upsert:true})
-
-         let result = await client.db("user").collection("visitor").findOne({
-            username:{$eq:visitorName}
-        })
-
-        if (!result){
-            await client.db("user").collection("visitor").insertOne({   //add visitor if there he/is is not in db
-                "_id":visitorIC,                                        //_id must be unique !!!! I will do tmr (21/6/2023)
-                "username":visitorName,
-                "password":111111,
-                "email":"xxxx",
-                "role":"visitor",
-                "lastCheckinTime" :"not check in yet"
-            })
+    if (result){
+        let addVis = await client.db("user").collection("visitor").findOne({_id: visitorIC, username: visitorName, "host.name": host})
+        if (!addVis){
+            await client.db("user").collection("host").updateOne({
+                username: host
+            },{$push:{visitor:{name:visitorName,phone:phoneNumber,company:companyName,date:date,time:time}}},{upsert:true})
 
             await client.db("user").collection("visitor").updateOne({
                 username:{$eq:visitorName}
             },{$push:{host:{name:host,date:date,time:time}}})
+            console.log("The visitor is added successfully")
         }
-        else{
-            await client.db("user").collection("visitor").updateOne({
-                username:{$eq:visitorName}
-            },{$push:{host:{name:host,date:date,time:time}}})
-        }
-
-        console.log("Visitor",visitorName,"is successfully added")
+        else
+            console.log ("The visitor you entered already in list")
     }
-    else
-        console.log ("The visitor has already been added")
+    else 
+        console.log ("The visitor you entered hasn't registered, please register with security in charge")
+            
+            
 }
 
 async function removeVisitor(removeVisitor,removeDate,removeTime){
