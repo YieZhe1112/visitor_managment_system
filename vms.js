@@ -224,7 +224,7 @@ async function addVisitor(visitorIC,visitorName,phoneNumber,companyName,date,tim
     let result = await client.db("user").collection("visitor").findOne({_id: visitorIC, username: visitorName})
     
     if (result){
-        let addVis = await client.db("user").collection("visitor").findOne({_id: visitorIC, username: visitorName, "host.name": host})
+        let addVis = await client.db("user").collection("visitor").findOne({_id: visitorIC, username: visitorName, "host.name": host, "host.time": time, "host.date": date})
         if (!addVis){
             await client.db("user").collection("host").updateOne({
                 username: host
@@ -245,17 +245,23 @@ async function addVisitor(visitorIC,visitorName,phoneNumber,companyName,date,tim
 }
 
 async function removeVisitor(removeVisitor,removeDate,removeTime){
+    
+    let result = await client.db("user").collection("visitor").findOne({username: removeVisitor, "host.name": host, "host.date":removeDate,"host.time":removeTime})
+    if (result){
+        await client.db("user").collection("host").updateOne({
+            username: host
+        },{$pull:{visitor:{name:removeVisitor},visitor:{date:removeDate},visitor:{time:removeTime}}},{upsert:true})
 
-    await client.db("user").collection("host").updateOne({
-        username: host
-    },{$pull:{visitor:{name:removeVisitor},visitor:{date:removeDate},visitor:{time:removeTime}}},{upsert:true})
+        let hostname = host
+        
+        await client.db("user").collection("visitor").updateOne({
+            username: removeVisitor
+        },{$pull:{host:{name:host,date:removeDate,time:removeTime}}},{upsert:true})
 
-
-    await client.db("user").collection("visitor").updateOne({
-     
-    },{$pull:{host:{name:host}}},{upsert:true})
-
-    console.log("Visitor",removeVisitor,"is successfully remove")
+        console.log("Visitor",removeVisitor,"is successfully remove")
+    }
+    else
+        console.log ("No appointment found")
 }
 
 async function searchVisitor(IC){
