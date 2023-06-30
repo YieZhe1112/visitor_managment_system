@@ -22,7 +22,7 @@ Content-Type: application/json
 
 {
     "username" : "HO",
-    "password" : 111111
+    "password" : 123456
 }
 
 ###
@@ -30,7 +30,7 @@ POST http://localhost:3000/login/visitor/updatePassword
 Content-Type: application/json
 
 {
-    "password" : 12345
+    "password" : 123445
 }
 
 ###
@@ -51,6 +51,7 @@ POST http://localhost:3000/login/security/register/host
 Content-Type: application/json
 
 {
+    "username" : "HO",
     "password" : 111111,
     "_id"      : "000201-00-9919",
     "email"    : "ho@student.utem.edu.my",
@@ -78,7 +79,7 @@ POST http://localhost:3000/login/host/updatePassword
 Content-Type: application/json
 
 {
-    "password" : 123456
+    "password" : 123455
 }
 
 ###
@@ -86,7 +87,7 @@ POST http://localhost:3000/login/host/search
 Content-Type: application/json
 
 {
-    "_id" : "000101-02-1111"
+    "_id" : "000000-00-0000"
 }
 
 ###
@@ -96,8 +97,8 @@ Content-Type: application/json
 {
     "Ic"          : "000000-00-0000",
     "visitorName" : "TAN",
-    "phoneNumber" : "011-6625265",
-    "companyName" : "Amway",
+    "phoneNumber" : "012-3456789",
+    "companyName" : "qqqqq",
     "date"        : "2023-06-30",
     "time"        : "8.00 pm"
 }
