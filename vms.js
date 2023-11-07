@@ -1,6 +1,17 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000;
+
+app.use(express.json())
+
+app.get('/', (req, res) => {
+   res.send('Hello World!')
+})
+
+app.listen(port, () => {
+   console.log(`Example app listening on port ${port}`)
+})
+
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://s2s3a:abc1234@record.55pqast.mongodb.net/?retryWrites=true&w=majority";
@@ -29,16 +40,16 @@ client.connect().then(res=>{
 async function registerVisitor(regIC,regUsername,regPassword,regEmail,regRole,regLast){  //register visitor
    
     if (await client.db("user").collection("visitor").findOne({_id : regIC})){
-        console.log ("Your IC has already registered in the system")
+        return "Your IC has already registered in the system"
     }
     
     else {
         if( await client.db("user").collection("visitor").findOne({username: regUsername})){
-            console.log("Your Username already exist. Please try to login")
+            return "Your Username already exist. Please try to login"
         }
 
         else if(await client.db("user").collection("visitor").findOne({email: regEmail})){
-            console.log("Your email already exist. Please try to login")
+            return "Your email already exist. Please try to login"
         }
 
         else{
@@ -50,23 +61,24 @@ async function registerVisitor(regIC,regUsername,regPassword,regEmail,regRole,re
                 "role":regRole,
                 "lastCheckinTime" :regLast
             })
-            console.log(regUsername,"is successfully register")
+            let data = regUsername+" is successfully register"
+            return data
         }
     }
 }
 
 async function registerHost(regIC,regUsername,regPassword,regEmail,regRole){  //register host
     if (await client.db("user").collection("host").findOne({_id : regIC})){
-        console.log ("Your IC has already registered in the system")
+        return "Your IC has already registered in the system"
     }
     
     else {
         if( await client.db("user").collection("host").findOne({username: regUsername})){
-            console.log("Your Username already exist. Please try to login")
+            return "Your Username already exist. Please try to login"
         }
 
         else if(await client.db("user").collection("host").findOne({email: regEmail})){
-            console.log("Your email already exist. Please try to login")
+            return "Your email already exist. Please try to login"
         }
 
         else{
@@ -77,7 +89,8 @@ async function registerHost(regIC,regUsername,regPassword,regEmail,regRole){  //
                 "email":regEmail,
                 "role":regRole
             })
-            console.log(regUsername,"is successfully register")
+            let data = regUsername + " is successfully register"
+            return data
         }
     }
 }
@@ -108,6 +121,7 @@ async function login(Username,Password){  //user and host login
         console.log("Successfully Login")
         l = "true"
         role = "visitor"
+        return result
         //details(result.role)
     }
     else {
@@ -126,6 +140,7 @@ async function login(Username,Password){  //user and host login
             console.log("Successfully Login")
             l = "true"
             role = "host"
+            return result
             //details(result.role)
             
         }
@@ -144,11 +159,12 @@ async function login(Username,Password){  //user and host login
                 console.log("Successfully Login")
                 l = "true"
                 role = "security"
+                return result
                 //details(result.role)
                 
             }
             else{
-                console.log("User not found or password error")
+                return "User not found or password error"
             }
         } 
     }
@@ -165,10 +181,10 @@ async function deleteVisitorAcc(Username){  //delete visitor acc
 
     if(result.deletedCount == 1){
         console.log(result)
-        console.log("The account was successfully deleted")
+        return "The account was successfully deleted"
     }
     else{
-        console.log("The account you was tried to delete doesn't exist")
+        return "The account you was tried to delete doesn't exist"
     }
 }
 
@@ -183,10 +199,10 @@ async function deleteHostAcc(Username){  //delete host acc
 
     if(result.deletedCount == 1){   //if the acc exists, delete the acc
         console.log(result)
-        console.log("The account was successfully deleted")
+        return "The account was successfully deleted"
     }
     else{   
-        console.log("The account you was tried to delete doesn't exist")
+        return "The account you was tried to delete doesn't exist"
     }
 }
 
@@ -198,10 +214,11 @@ async function updateVisitorPass(regPassword){  //change only when password is d
             username:{$eq:visitor}
         },{$set:{password:regPassword}})
 
-        console.log("Password",visitor,"is successfully updated")
+        let data = "Password "+visitor+" is successfully updated"
+        return data
     }
     else
-        console.log ("Same password cannot be applied")
+        return "Same password cannot be applied"
 }        
 
 async function updateHostPass(regPassword){
@@ -213,10 +230,11 @@ async function updateHostPass(regPassword){
             username:{$eq:host}
         },{$set:{password:regPassword}})
 
-        console.log("Password",host,"is successfully updated")
+        let data= "Password "+host+" is successfully updated"
+        return data
     }
     else
-        console.log ("Same password cannot be applied")
+        return "Same password cannot be applied"
 }
 
 async function addVisitor(visitorIC,visitorName,phoneNumber,companyName,date,time){
@@ -234,12 +252,16 @@ async function addVisitor(visitorIC,visitorName,phoneNumber,companyName,date,tim
                 username:{$eq:visitorName}
             },{$push:{host:{name:host,date:date,time:time}}})
             console.log("The visitor is added successfully")
+            return "The visitor is added successfully"
         }
         else
             console.log ("The visitor you entered already in list")
+            return "The visitor you entered already in list"
+
     }
     else 
         console.log ("The visitor you entered hasn't registered, please register with security in charge")
+        return "The visitor you entered hasn't registered, please register with security in charge"
             
             
 }
@@ -252,16 +274,18 @@ async function removeVisitor(removeVisitor,removeDate,removeTime){
             username: host
         },{$pull:{visitor:{name:removeVisitor},visitor:{date:removeDate},visitor:{time:removeTime}}},{upsert:true})
 
-        let hostname = host
         
         await client.db("user").collection("visitor").updateOne({
             username: removeVisitor
         },{$pull:{host:{name:host,date:removeDate,time:removeTime}}},{upsert:true})
 
         console.log("Visitor",removeVisitor,"is successfully remove")
+        let data = "Visitor "+removeVisitor+" is successfully remove"
+        return data
     }
     else
         console.log ("No appointment found")
+        return "No appointment found"
 }
 
 async function searchVisitor(IC){
@@ -271,6 +295,7 @@ async function searchVisitor(IC){
         _id:{$eq:IC}
     },option)
     console.log(result)
+    return result
 }
 
 //HTTP login method
@@ -279,111 +304,117 @@ app.use(express.json())
 app.listen(port, () => {
   })
 
-app.post('/login', (req, res) => {   //login
+app.post('/login', async(req, res) => {   //login
     if(l == "false"){
-        res.send(login(req.body.username,req.body.password))
+        res.send(await login(req.body.username,req.body.password))
     }
     else{
-        console.log("...")
+        res.send("...")
     }
 })
 
 
 //visitor HTTP methods    
         
-app.post('/login/visitor', (req, res) => {   //login
-    res.send(login(req.body.username,req.body.password))
+app.post('/login/visitor', async(req, res) => {   //login
+    res.send(await login(req.body.username,req.body.password))
 })
 
-app.post('/login/visitor/updatePassword', (req, res) => {   //login
-    if ((role == "visitor") && (l == "true"))
-        res.send(updateVisitorPass(req.body.password))
+app.post('/login/visitor/updatePassword', async(req, res) => {   //login
+    if ((role == "visitor") && (l == "true")){
+        res.send (await updateVisitorPass(req.body.password))
+    }
     else
-        console.log ("You are not a visitor")
+        res.send ("You are not a visitor")
 })
 
 app.get('/login/visitor/logout', (req, res) => {
     if ((role == "visitor") && (l == "true")){
-        console.log("You have successfully log out")
+        res.send("You have successfully log out")
         l = "false"
     }
     else
-        console.log ("You had log out")
+        res.send ("You had log out")
 })
     
 //host http method 
 
-app.post('/login/host', (req, res) => {   //login
+app.post('/login/host', async(req, res) => {   //login
     
-    res.send(login(req.body.username,req.body.password))
+    res.send(await login(req.body.username,req.body.password))
     
 })
 
-app.post('/login/host/updatePassword', (req, res) => {   //login
-    if ((role == "host") && (l == "true"))
-        res.send(updateHostPass(req.body.password))
+app.post('/login/host/updatePassword', async(req, res) => {   //login
+    if ((role == "host") && (l == "true")){
+        res.send(await updateHostPass(req.body.password))
+    }
     else
-        console.log ("You are not a host")
+        res.send ("You are not a host") 
 })
 
-app.post('/login/host/search', (req, res) => {   //look up visitor details
+app.post('/login/host/search', async(req, res) => {   //look up visitor details
     if ((role == "host") && (l == "true"))
-        res.send(searchVisitor(req.body._id))
+        res.send (await searchVisitor(req.body._id))
     else
-        console.log ("You are not a host")
+        res.send ("You are not a host")
 })
 
-app.post('/login/host/addVisitor', (req, res) => {   //add visitor
-    if ((role == "host") && (l == "true"))
-        res.send(addVisitor(req.body.Ic,req.body.visitorName,req.body.phoneNumber,req.body.companyName,req.body.date,req.body.time))
+app.post('/login/host/addVisitor', async (req, res) => {   //add visitor
+    if ((role == "host") && (l == "true")){
+        let response = await addVisitor(req.body.Ic,req.body.visitorName,req.body.phoneNumber,req.body.companyName,req.body.date,req.body.time)
+        res.send (response)
+    }
     else
         console.log ("You are not a host")
 })
 
 app.post('/login/host/removeVisitor', (req, res) => {   //remove visitor
-    if ((role == "host") && (l == "true"))
-        res.send(removeVisitor(req.body.visitorName,req.body.date,req.body.time))
+    if ((role == "host") && (l == "true")){
+        let response = removeVisitor(req.body.visitorName,req.body.date,req.body.time)
+        res.send (response)
+    }
     else
         console.log ("You are not a host")
 })
 
 app.get('/login/host/logout', (req, res) => { 
     if ((role == "host") && (l == "true")){
-        console.log("You have successfully log out")
+        res.send("You have successfully log out")
         l = "false"    
     }   
     else
-        console.log ("You had log out")
+        res.send ("You had log out")
 })
     
 //security http mehtods    
 
-app.post("/login/security/deleteHost" , (req, res) => {  //delete host
+app.post("/login/security/deleteHost" , async(req, res) => {  //delete host
     if ((role == "security") && (l == "true"))
-        res.send(deleteHostAcc(req.body.username))
+        res.send(await deleteHostAcc(req.body.username))
     else
-        console.log ("You are not a security")
+        res.send ("You are not a security")
 })
 
-app.post("/login/security/deleteVisitor" , (req, res) => {  //delete visitor
+app.post("/login/security/deleteVisitor" , async(req, res) => {  //delete visitor
     if ((role == "security") && (l == "true"))
-        res.send(deleteVisitorAcc(req.body.username))
+        res.send(await deleteVisitorAcc(req.body.username))
     else
-        console.log ("You are not a security")
+        res.send ("You are not a security")
 })
 
-app.post("/login/security/register/visitor" , (req, res) => {  //register visitor
+app.post("/login/security/register/visitor" , async (req, res) => {  //register visitor
     if ((role == "security") && (l == "true"))
-        res.send(registerVisitor(req.body._id,req.body.username,req.body.password,req.body.email,req.body.role,req.body.lastCheckinTime))
+        res.send(await registerVisitor(req.body._id,req.body.username,req.body.password,req.body.email,req.body.role,req.body.lastCheckinTime))
     else
-        console.log ("You are not a security")
+        res.send ("You are not a security")
 })
         
-app.post("/login/security/register/host" , (req, res) => {  //register host
+app.post("/login/security/register/host" , async(req, res) => {  //register host
     if ((role == "security") && (l == "true"))
-        res.send(registerHost(req.body._id,req.body.username,req.body.password,req.body.email,req.body.role))    
+        res.send(await registerHost(req.body._id,req.body.username,req.body.password,req.body.email,req.body.role))    
     else
-        console.log ("You are not a security")     
+        res.send ("You are not a security")     
 })
 
 app.get('/login/security/logout', (req, res) => {
